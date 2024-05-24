@@ -10,9 +10,9 @@ import (
 func Router() *gin.Engine{
 	r := gin.Default()
 
-	//cors 配置			--- 跨域
+	//cors 配置			--- 跨域  不知道为什么要开vpn才能正确传递数据
 	r.Use(cors.New(cors.Config{
-        AllowOrigins:     []string{"http://localhost:8080", "http://192.168.171.243:8080"},
+        AllowOrigins:     []string{"*"},
         AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
         AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
         ExposeHeaders:    []string{"Content-Length"},
@@ -22,12 +22,6 @@ func Router() *gin.Engine{
 
 	r.POST("/admin/login",service.Login)
 	r.POST("/admin/register",service.Register)
-	// r.GET("/admin/employee/page",service.PageQuery)
-	// r.POST("/admin/employee/update",service.UpdateEmployee)
-
-	// r.GET("/admin/category/page",service.PageQueryCategory)
-	// r.POST("/admin/category/addCategory",service.AddCategory)
-	// r.POST("/admin/category/deleteCategory",service.DeleteCategory)
-	// r.POST("/admin/category/updateCategory",service.UpdateCategory)
+    r.GET("/admin/BorrowerPageQuery",service.BorrowerPageQuery)
 	return r
 }

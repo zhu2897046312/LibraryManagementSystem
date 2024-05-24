@@ -28,6 +28,17 @@ type BookType struct {
 	FineAmount   float64 `gorm:"type:decimal(10,2);not null" json:"fine_amount"`
 }
 
+func init(){
+	err := utils.DB_MySQL.AutoMigrate(&Book{})
+	if err!= nil {
+        panic(err)
+    }
+	err = utils.DB_MySQL.AutoMigrate(&BookType{})
+	if err!= nil {
+        panic(err)
+    }
+}
+
 func (u *Book) Insert(employee *Book) *gorm.DB {
 	return utils.DB_MySQL.Model(&Book{}).Create(employee)
 }
@@ -40,6 +51,11 @@ func (u *Book) Delete(user_name string) *gorm.DB {
 	return utils.DB_MySQL.Model(&Book{}).Where("user_id =?", user_name).Delete(&Book{})
 }
 
+func (u *Book) GetAll() ([]Book, *gorm.DB){
+	var borrowers []Book
+    return borrowers, utils.DB_MySQL.Model(&Book{}).Find(&borrowers)
+}
+
 func (u *BookType) Insert(employee *BookType) *gorm.DB {
 	return utils.DB_MySQL.Model(&BookType{}).Create(employee)
 }
@@ -50,6 +66,11 @@ func (u *BookType) Update(employee *BookType) *gorm.DB {
 
 func (u *BookType) Delete(user_name string) *gorm.DB {
 	return utils.DB_MySQL.Model(&BookType{}).Where("user_id =?", user_name).Delete(&BookType{})
+}
+
+func (u *BookType) GetAll() ([]BookType, *gorm.DB){
+	var borrowers []BookType
+    return borrowers, utils.DB_MySQL.Model(&BookType{}).Find(&borrowers)
 }
 
 

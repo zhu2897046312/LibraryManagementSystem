@@ -22,6 +22,12 @@ type Borrower struct {
 	Gender               int       `gorm:"type:int" json:"gender"`
 	Unit                 string    `gorm:"type:varchar(100)" json:"unit"`
 }
+func init(){
+	err := utils.DB_MySQL.AutoMigrate(&Borrower{})
+	if err!= nil {
+        panic(err)
+    }
+}
 
 func (u *Borrower) Insert(employee *Borrower) *gorm.DB {
 	return utils.DB_MySQL.Model(&Borrower{}).Create(employee)
@@ -35,3 +41,17 @@ func (u *Borrower) Delete(user_name string) *gorm.DB {
 	return utils.DB_MySQL.Model(&Borrower{}).Where("user_id =?", user_name).Delete(&Borrower{})
 }
 
+func (u *Borrower) GetAll() ([]Borrower, *gorm.DB){
+	var borrowers []Borrower
+    return borrowers, utils.DB_MySQL.Model(&Borrower{}).Find(&borrowers)
+}
+
+func (u *Borrower) PageQuery(page int, pageSize int) ([]Borrower, *gorm.DB) {
+	employees := make([]Borrower, 0)
+	var total int64
+
+	utils.DB_MySQL.Model(&Borrower{}).Count(&total)
+	offset := (page - 1) * pageSize
+	query := utils.DB_MySQL.Model(&Borrower{}).Limit(pageSize).Offset(offset).Find(&employees)
+	return employees, query
+}

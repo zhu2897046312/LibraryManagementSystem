@@ -12,6 +12,13 @@ type User struct {
 	IsAdministrator bool   `gorm:"type:boolean;not null" json:"is_administrator"`
 }
 
+func init(){
+	err := utils.DB_MySQL.AutoMigrate(&User{})
+	if err!= nil {
+        panic(err)
+    }
+}
+
 func (u *User) Insert(employee *User) *gorm.DB {
 	return utils.DB_MySQL.Model(&User{}).Create(employee)
 }
@@ -24,6 +31,11 @@ func (u *User) Delete(employee *User) *gorm.DB {
 	return utils.DB_MySQL.Model(&User{}).Where("user_name =?", employee.UserName).Delete(&User{})
 }
 
-func (User) FindByName(user *User) *gorm.DB {
+func (u *User) FindByName(user *User) *gorm.DB {
 	return utils.DB_MySQL.Model(&User{}).Where("user_name =?", user.UserName).Find(&user)
+}
+
+func (u *User) GetAll() ([]User, *gorm.DB){
+	var borrowers []User
+    return borrowers, utils.DB_MySQL.Model(&User{}).Find(&borrowers)
 }

@@ -17,6 +17,13 @@ type Borrowing struct {
 	FineAmount   float64   `gorm:"type:decimal(10,2);not null" json:"fine_amount"`
 }
 
+func init(){
+	err := utils.DB_MySQL.AutoMigrate(&Borrowing{})
+	if err!= nil {
+        panic(err)
+    }
+}
+
 func (u *Borrowing) Insert(employee *Borrowing) *gorm.DB {
 	return utils.DB_MySQL.Model(&Borrowing{}).Create(employee)
 }
@@ -27,4 +34,9 @@ func (u *Borrowing) Update(employee *Borrowing) *gorm.DB {
 
 func (u *Borrowing) Delete(user_name string) *gorm.DB {
 	return utils.DB_MySQL.Model(&Borrowing{}).Where("user_id =?", user_name).Delete(&Borrowing{})
+}
+
+func (u *Borrowing) GetAll() ([]Borrowing, *gorm.DB){
+	var borrowers []Borrowing
+    return borrowers, utils.DB_MySQL.Model(&Borrowing{}).Find(&borrowers)
 }
