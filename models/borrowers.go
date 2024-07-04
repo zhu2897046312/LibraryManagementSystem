@@ -33,12 +33,16 @@ func (u *Borrower) Insert(employee *Borrower) *gorm.DB {
 	return utils.DB_MySQL.Model(&Borrower{}).Create(employee)
 }
 
-func (u *Borrower) Update(employee *Borrower) *gorm.DB {
-	return utils.DB_MySQL.Model(&Borrower{}).Where("user_id =?", employee.BorrowerID).Updates(&employee)
+func (u *Borrower) FindByID(user *Borrower) *gorm.DB {
+	return utils.DB_MySQL.Model(&Borrower{}).Where("borrower_id = ?", user.BorrowerID).Find(&user)
 }
 
-func (u *Borrower) Delete(user_name string) *gorm.DB {
-	return utils.DB_MySQL.Model(&Borrower{}).Where("user_id =?", user_name).Delete(&Borrower{})
+func (u *Borrower) Update(employee *Borrower) *gorm.DB {
+	return utils.DB_MySQL.Model(&Borrower{}).Where("borrower_id = ?", employee.BorrowerID).Updates(&employee)
+}
+
+func (u *Borrower) Delete(employee *Borrower) *gorm.DB {
+	return utils.DB_MySQL.Model(&Borrower{}).Where("borrower_id = ?", employee.BorrowerID).Delete(&Borrower{})
 }
 
 func (u *Borrower) GetAll() ([]Borrower, *gorm.DB){

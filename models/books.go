@@ -43,12 +43,16 @@ func (u *Book) Insert(employee *Book) *gorm.DB {
 	return utils.DB_MySQL.Model(&Book{}).Create(employee)
 }
 
-func (u *Book) Update(employee *Book) *gorm.DB {
-	return utils.DB_MySQL.Model(&Book{}).Where("user_id =?", employee.BookID).Updates(&employee)
+func (u *Book) FindByID(user *Book) *gorm.DB {
+	return utils.DB_MySQL.Model(&Book{}).Where("book_id = ?", user.BookID).Find(&user)
 }
 
-func (u *Book) Delete(user_name string) *gorm.DB {
-	return utils.DB_MySQL.Model(&Book{}).Where("user_id =?", user_name).Delete(&Book{})
+func (u *Book) Update(employee *Book) *gorm.DB {
+	return utils.DB_MySQL.Model(&Book{}).Where("book_id =?", employee.BookID).Updates(&employee)
+}
+
+func (u *Book) Delete(employee *Book) *gorm.DB {
+	return utils.DB_MySQL.Model(&Book{}).Where("book_id = ?", employee.BookID).Delete(&Book{})
 }
 
 func (u *Book) GetAll() ([]Book, *gorm.DB){
@@ -61,7 +65,7 @@ func (u *BookType) Insert(employee *BookType) *gorm.DB {
 }
 
 func (u *BookType) Update(employee *BookType) *gorm.DB {
-	return utils.DB_MySQL.Model(&BookType{}).Where("user_id =?", employee.ID).Updates(&employee)
+	return utils.DB_MySQL.Model(&BookType{}).Where("id =?", employee.ID).Updates(&employee)
 }
 
 func (u *BookType) Delete(user_name string) *gorm.DB {
@@ -71,6 +75,26 @@ func (u *BookType) Delete(user_name string) *gorm.DB {
 func (u *BookType) GetAll() ([]BookType, *gorm.DB){
 	var borrowers []BookType
     return borrowers, utils.DB_MySQL.Model(&BookType{}).Find(&borrowers)
+}
+
+func (u *BookType) PageQuery(page int, pageSize int) ([]BookType, *gorm.DB) {
+	employees := make([]BookType, 0)
+	var total int64
+
+	utils.DB_MySQL.Model(&BookType{}).Count(&total)
+	offset := (page - 1) * pageSize
+	query := utils.DB_MySQL.Model(&BookType{}).Limit(pageSize).Offset(offset).Find(&employees)
+	return employees, query
+}
+
+func (u *Book) PageQuery(page int, pageSize int) ([]Book, *gorm.DB) {
+	employees := make([]Book, 0)
+	var total int64
+
+	utils.DB_MySQL.Model(&Book{}).Count(&total)
+	offset := (page - 1) * pageSize
+	query := utils.DB_MySQL.Model(&Book{}).Limit(pageSize).Offset(offset).Find(&employees)
+	return employees, query
 }
 
 

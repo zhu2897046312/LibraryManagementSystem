@@ -21,7 +21,25 @@ func Router() *gin.Engine{
     }))
 
 	r.POST("/admin/login",service.Login)
+    //insert
 	r.POST("/admin/register",service.Register)
+    r.POST("/admin/BookInsert",service.BookInsert)
+    r.POST("/admin/BorrowerInsert",service.BorrowerInsert)
+    r.POST("/admin/BorrowingInsert",service.BorrowingInsert)
+    //update
+    r.POST("/admin/UserUpdate",service.UserUpdate)
+    r.POST("/admin/BookUpdate",service.BookUpdate)
+    r.POST("/admin/BorrowerUpdate",service.BorrowerUpdate)
+    r.POST("/admin/BorrowingUpdate",service.BorrowingUpdate)
+    //delete
+    r.POST("/admin/UserDelete",service.UserDelete)
+    r.POST("/admin/BookDelete",service.BookDelete)
+    r.POST("/admin/BorrowerDelete",service.BorrowerDelete)
+    r.POST("/admin/BorrowingDelete",service.BorrowingDelete)
+    //query
     r.GET("/admin/BorrowerPageQuery",service.BorrowerPageQuery)
+    r.GET("/admin/BookPageQuery",service.BooksPageQuery)
+    r.GET("/admin/BorrowingPageQuery",service.BorrowingPageQuery)
+    r.GET("/admin/UserPageQuery",service.UserPageQuery)
 	return r
 }

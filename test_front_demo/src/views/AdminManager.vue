@@ -32,39 +32,43 @@
     </main>
   </div>
 </template>
-  
-<script>
 
+<script>
 import Login from './Login.vue';
 import BorrowerManagement from '../components/Manager/BorrowerManagement.vue';
 import BookManagement from '../components/Manager/BookManagement.vue';
 import LoanManagement from '../components/Manager/LoanManagement.vue';
-
+import UserManagement from '../components/Manager/UserManagement.vue';
 export default {
-name: 'Dashboard',
-components: {
-    Login,
-    BorrowerManagement,
-    BookManagement,
-    LoanManagement
-},
-data() {
-    return {
-        currentView: 'Login',
-        showOtherInfo: false,
-        showProfileMenu: false
-    };
-},
-methods: {
-    toggleOtherInfo() {
-      this.showOtherInfo = !this.showOtherInfo;
+    name: 'Dashboard',
+    components: {
+        Login,
+        BorrowerManagement,
+        BookManagement,
+        LoanManagement,
+        UserManagement
     },
-    hideOtherInfo(){
-        this.showOtherInfo = false;
+    data() {
+        return {
+            currentView: 'Login',
+            showOtherInfo: false,
+            showProfileMenu: false,
+            users: [],  // Added to hold user data
+            page: 1,  // Current page number
+            pageSize: 10  // Number of items per page
+        };
+    },
+    methods: {
+        toggleOtherInfo() {
+            this.showOtherInfo = !this.showOtherInfo;
+        },
+        hideOtherInfo() {
+            this.showOtherInfo = false;
+        },
     }
-}
 };
 </script>
+
 
 <style>
 .dashboard {

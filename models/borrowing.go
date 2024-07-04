@@ -28,15 +28,29 @@ func (u *Borrowing) Insert(employee *Borrowing) *gorm.DB {
 	return utils.DB_MySQL.Model(&Borrowing{}).Create(employee)
 }
 
-func (u *Borrowing) Update(employee *Borrowing) *gorm.DB {
-	return utils.DB_MySQL.Model(&Borrowing{}).Where("user_id =?", employee.ID).Updates(&employee)
+func (u *Borrowing) FindByID(user *Borrowing) *gorm.DB {
+	return utils.DB_MySQL.Model(&Borrowing{}).Where("borrower_id = ?", user.BorrowerID).Find(&user)
 }
 
-func (u *Borrowing) Delete(user_name string) *gorm.DB {
-	return utils.DB_MySQL.Model(&Borrowing{}).Where("user_id =?", user_name).Delete(&Borrowing{})
+func (u *Borrowing) Update(employee *Borrowing) *gorm.DB {
+	return utils.DB_MySQL.Model(&Borrowing{}).Where("borrower_id = ?", employee.BorrowerID).Updates(&employee)
+}
+
+func (u *Borrowing) Delete(employee *Borrowing) *gorm.DB {
+	return utils.DB_MySQL.Model(&Borrowing{}).Where("borrower_id = ?", employee.BorrowerID).Delete(&Borrowing{})
 }
 
 func (u *Borrowing) GetAll() ([]Borrowing, *gorm.DB){
 	var borrowers []Borrowing
     return borrowers, utils.DB_MySQL.Model(&Borrowing{}).Find(&borrowers)
+}
+
+func (u *Borrowing) PageQuery(page int, pageSize int) ([]Borrowing, *gorm.DB) {
+	employees := make([]Borrowing, 0)
+	var total int64
+
+	utils.DB_MySQL.Model(&Borrowing{}).Count(&total)
+	offset := (page - 1) * pageSize
+	query := utils.DB_MySQL.Model(&Borrowing{}).Limit(pageSize).Offset(offset).Find(&employees)
+	return employees, query
 }
