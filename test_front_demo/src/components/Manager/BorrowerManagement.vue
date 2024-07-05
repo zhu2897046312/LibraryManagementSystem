@@ -1,6 +1,9 @@
 <template>
   <div class="borrower-management">
     <h2>借阅者管理</h2>
+
+    <button @click="showAddModal = true">新增借阅者</button>
+
     <table>
       <thead>
         <tr>
@@ -103,6 +106,64 @@
         </form>
       </div>
     </div>
+
+    <div v-if="showAddModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="closeAddModal">&times;</span>
+        <h2>编辑借阅者信息</h2>
+        <form @submit.prevent="addBorrower">
+          <div>
+            <label for="add_borrower_id">借阅者ID:</label>
+            <input type="text" v-model="newBorrower.borrower_id" id="add_borrower_id" required />
+          </div>
+          <div>
+            <label for="add_borrower_name">姓名:</label>
+            <input type="text" v-model="newBorrower.borrower_name" id="add_borrower_name" required />
+          </div>
+          <div>
+            <label for="add_borrower_address">地址:</label>
+            <input type="text" v-model="newBorrower.borrower_address" id="add_borrower_address" required />
+          </div>
+          <div>
+            <label for="add_borrower_phone">电话:</label>
+            <input type="text" v-model="newBorrower.borrower_phone" id="add_borrower_phone" required />
+          </div>
+          <div>
+            <label for="add_borrower_type">类型:</label>
+            <input type="text" v-model="newBorrower.borrower_type" id="add_borrower_type" required />
+          </div>
+          <div>
+            <label for="add_borrower_books_numbers">借阅数量:</label>
+            <input type="number" v-model="newBorrower.borrower_books_numbers" id="add_borrower_books_numbers" required />
+          </div>
+          <div>
+            <label for="add_identity_card_id">身份证号:</label>
+            <input type="text" v-model="newBorrower.identity_card_id" id="add_identity_card_id" required />
+          </div>
+          <div>
+            <label for="add_issuance_date">发证日期:</label>
+            <input type="date" v-model="newBorrower.issuance_date" id="add_issuance_date" required />
+          </div>
+          <div>
+            <label for="add_is_loss">挂失:</label>
+            <input type="checkbox" v-model="newBorrower.is_loss" id="add_is_loss" />
+          </div>
+          <div>
+            <label for="add_gender">性别:</label>
+            <select v-model="newBorrower.gender" id="add_gender" required>
+              <option value="1">男</option>
+              <option value="2">女</option>
+            </select>
+          </div>
+          <div>
+            <label for="add_unit">单位:</label>
+            <input type="text" v-model="newBorrower.unit" id="add_unit" required />
+          </div>
+          <button type="submit">添加</button>
+        </form>
+      </div>
+    </div>
+    
   </div>
 </template>
 
@@ -115,10 +176,24 @@ export default {
     return {
       borrowers: [],
       page: 1,
-      pageSize: 6,
+      pageSize: 10,
       totalPages: 1,
       showEditModal: false,
+      showAddModal: false,
       currentBorrower: {
+        borrower_id: '',
+        borrower_name: '',
+        borrower_address: '',
+        borrower_phone: '',
+        borrower_type: '',
+        borrower_books_numbers: 0,
+        identity_card_id: '',
+        issuance_date: '',
+        is_loss: false,
+        gender: 1,
+        unit: ''
+      },
+      newBorrower: {
         borrower_id: '',
         borrower_name: '',
         borrower_address: '',
@@ -160,8 +235,7 @@ export default {
     },
     async updateBorrower() {
       try {
-        this.currentBorrower.issuance_date = new Date(this.currentBook.issuance_date).toISOString();
-
+        this.currentBorrower.issuance_date = new Date(this.currentBorrower.issuance_date).toISOString();
         await axios.post(`http://localhost:8081/admin/BorrowerUpdate`, this.currentBorrower);
         this.fetchBorrowers(this.page, this.pageSize);
         this.showEditModal = false;
@@ -182,6 +256,39 @@ export default {
       } catch (error) {
         console.error('Error deleting borrower:', error);
       }
+    },
+    closeAddModal() {
+      this.showAddModal = false;
+      this.clearNewBorrowerForm();
+    },
+    async addBorrower() {
+      try {
+        // Convert dates to ISO 8601 format
+        this.newBorrower.issuance_date = new Date(this.newBorrower.issuance_date).toISOString();
+        await axios.post(`http://localhost:8081/admin/BorrowerInsert`, this.newBorrower);
+        
+        this.fetchBorrowers(this.page, this.pageSize);
+        this.showAddModal = false;
+        this.clearNewBorrowerForm();
+      } catch (error) {
+        console.error('Error adding borrower:', error);
+      }
+    },
+    clearNewBorrowerForm() {
+      this.newBorrower = {
+        borrower_id: '',
+        borrower_name: '',
+        borrower_address: '',
+        borrower_phone: '',
+        borrower_type: '',
+        borrower_books_numbers: 0,
+        identity_card_id: '',
+        issuance_date: '',
+        is_loss: false,
+        gender: 1,
+        unit: ''
+      };
+      
     }
   },
   created() {
@@ -193,20 +300,50 @@ export default {
 <style>
 .borrower-management {
   padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.borrower-management h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.borrower-management button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.borrower-management button:hover {
+  background-color: #45a049;
 }
 
 .borrower-management table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 20px;
 }
 
 .borrower-management th, .borrower-management td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
+  text-align: left;
 }
 
 .borrower-management th {
   background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
+}
+
+.borrower-management td {
+  background-color: #fff;
 }
 
 .pagination {
@@ -215,14 +352,24 @@ export default {
 }
 
 .pagination button {
-  padding: 5px 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
   margin: 0 5px;
 }
 
-button {
-  padding: 5px 10px;
-  margin: 0 5px;
-  cursor: pointer;
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #0056b3;
 }
 
 .modal {
@@ -242,8 +389,8 @@ button {
 .modal-content {
   background-color: #fff;
   padding: 20px;
-  border: 1px solid #888;
-  width: 400px;
+  border-radius: 10px;
+  width: 500px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   animation: modalopen 0.4s;
@@ -267,4 +414,51 @@ button {
   text-decoration: none;
   cursor: pointer;
 }
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+form label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="date"],
+form select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+form input[type="checkbox"] {
+  width: auto;
+}
+
+form button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+form button:hover {
+  background-color: #45a049;
+}
+
 </style>

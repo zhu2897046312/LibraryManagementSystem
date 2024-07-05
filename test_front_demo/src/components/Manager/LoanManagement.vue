@@ -1,6 +1,9 @@
 <template>
   <div class="borrowing-management">
     <h2>借阅管理</h2>
+
+    <button @click="showAddModal = true">新增借书历史</button>
+
     <table>
       <thead>
         <tr>
@@ -62,6 +65,32 @@
         </form>
       </div>
     </div>
+
+    <div v-if="showAddModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="closeAddModal">&times;</span>
+        <h2>编辑借阅信息</h2>
+        <form @submit.prevent="addBorrowing">
+          <div>
+            <label for="add_borrower_id">借阅者ID:</label>
+            <input type="text" v-model="newBorrowing.borrower_id" id="add_borrower_id" required />
+          </div>
+          <div>
+            <label for="add_book_id">书籍ID:</label>
+            <input type="text" v-model="newBorrowing.book_id" id="add_book_id" required />
+          </div>
+          <div>
+            <label for="add_borrowed_date">借阅日期:</label>
+            <input type="date" v-model="newBorrowing.borrowed_date" id="add_borrowed_date" required />
+          </div>
+          <div>
+            <label for="add_fine_amount">罚款金额:</label>
+            <input type="number" v-model="newBorrowing.fine_amount" id="add_fine_amount" required />
+          </div>
+          <button type="submit">添加</button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -77,7 +106,14 @@ export default {
       pageSize: 10,
       totalPages: 1,
       showEditModal: false,
+      showAddModal: false,
       currentBorrowing: {
+        borrower_id: '',
+        book_id: '',
+        borrowed_date: '',
+        fine_amount: 0
+      },
+      newBorrowing: {
         borrower_id: '',
         book_id: '',
         borrowed_date: '',
@@ -134,6 +170,31 @@ export default {
       } catch (error) {
         console.error('Error deleting borrowing:', error);
       }
+    },
+    closeAddModal() {
+      this.showAddModal = false;
+      this.clearNewBorrowingForm();
+    },
+    async addBorrowing() {
+      try {
+        // Convert dates to ISO 8601 format
+        this.newBorrowing.borrowed_date = new Date(this.newBorrowing.borrowed_date).toISOString();
+        await axios.post(`http://localhost:8081/admin/BorrowingInsert`, this.newBorrowing);
+        
+        this.fetchBorrowings(this.page, this.pageSize);
+        this.showAddModal = false;
+        this.clearNewBorrowingForm();
+      } catch (error) {
+        console.error('Error adding borrower:', error);
+      }
+    },
+    clearNewBorrowingForm() {
+      this.newBorrower = {
+        borrower_id: '',
+        book_id: '',
+        borrowed_date: '',
+        fine_amount: 0
+      };
     }
   },
   created() {
@@ -145,20 +206,52 @@ export default {
 <style>
 .borrowing-management {
   padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+}
+
+.borrowing-management h2 {
+  color: #333;
+  margin-bottom: 20px;
 }
 
 .borrowing-management table {
   width: 100%;
   border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .borrowing-management th, .borrowing-management td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
+  text-align: left;
 }
 
 .borrowing-management th {
   background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
+}
+
+.borrowing-management td {
+  background-color: #fff;
+}
+
+.borrowing-management button {
+  padding: 10px 15px;
+  margin: 5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.borrowing-management button:hover {
+  background-color: #0056b3;
 }
 
 .pagination {
@@ -167,14 +260,28 @@ export default {
 }
 
 .pagination button {
-  padding: 5px 10px;
-  margin: 0 5px;
-}
-
-button {
-  padding: 5px 10px;
+  padding: 8px 12px;
   margin: 0 5px;
   cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:enabled {
+  background-color: #0056b3;
+}
+
+.pagination span {
+  font-size: 16px;
+  color: #333;
 }
 
 .modal {
@@ -188,13 +295,13 @@ button {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
   background-color: #fff;
   padding: 20px;
-  border: 1px solid #888;
+  border-radius: 8px;
   width: 400px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -219,4 +326,44 @@ button {
   text-decoration: none;
   cursor: pointer;
 }
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal form div {
+  margin-bottom: 15px;
+}
+
+.modal form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.modal form input[type="text"],
+.modal form input[type="date"],
+.modal form input[type="number"] {
+  width: calc(100% - 22px);
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal form button {
+  align-self: flex-end;
+  padding: 10px 15px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.modal form button:hover {
+  background-color: #0056b3;
+}
+
 </style>

@@ -125,41 +125,6 @@ func BookInsert(c *gin.Context){
 }
 
 func BorrowingInsert(c *gin.Context){
-	user := models.Borrower{}
-	//接收json数据
-	if err := c.ShouldBindJSON(&user); err != nil{
-		c.JSON(300, gin.H{
-            "error": err.Error(),
-        })
-        return
-	}
-	//查询数据库
-	db := user.FindByID(&user)
-
-	//没找到
-	if db.RowsAffected == 0{
-		//插入数据库
-		db = user.Insert(&user)
-		if db.Error!= nil{
-			c.JSON(300, gin.H{
-				"error": db.Error.Error(),
-			})
-			return
-		}
-		c.JSON(200, gin.H{
-			"message": "成功",
-		})
-		return
-	}else{
-		//找到了
-		c.JSON(300, gin.H{
-			"message": "已存在",
-		})
-		return
-	}
-}
-
-func BorrowerInsert(c *gin.Context){
 	user := models.Borrowing{}
 	//接收json数据
 	if err := c.ShouldBindJSON(&user); err != nil{
@@ -194,6 +159,41 @@ func BorrowerInsert(c *gin.Context){
 	}
 }
 
+func BorrowerInsert(c *gin.Context){
+	user := models.Borrower{}
+	//接收json数据
+	if err := c.ShouldBindJSON(&user); err != nil{
+		c.JSON(300, gin.H{
+            "error": err.Error(),
+        })
+        return
+	}
+	fmt.Printf("user: %v\n", user)
+	//查询数据库
+	db := user.FindByID(&user)
+
+	//没找到
+	if db.RowsAffected == 0{
+		//插入数据库
+		db = user.Insert(&user)
+		if db.Error!= nil{
+			c.JSON(300, gin.H{
+				"error": db.Error.Error(),
+			})
+			return
+		}
+		c.JSON(200, gin.H{
+			"message": "成功",
+		})
+		return
+	}else{
+		//找到了
+		c.JSON(300, gin.H{
+			"message": "已存在",
+		})
+		return
+	}
+}
 
 func BorrowerPageQuery(c *gin.Context){
 	//接收数据

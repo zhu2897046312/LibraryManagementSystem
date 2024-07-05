@@ -71,7 +71,7 @@ export default {
         console.log(submit); // 打印登录请求的数据
         console.log(res.data); // 打印后端返回的数据
         console.log("登录成功");
-        this.$router.push({ path: '/' })
+        this.$router.push({ path: '/admin/manager' })
       }).catch(err => {
         console.log("登录失败");
       });

@@ -1,6 +1,9 @@
 <template>
   <div class="user-management">
     <h2>用户管理</h2>
+
+    <button @click="showAddModal = true">新增用户</button>
+
     <table>
       <thead>
         <tr>
@@ -43,6 +46,28 @@
         </form>
       </div>
     </div>
+
+    <div v-if="showAddModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showAddModal">&times;</span>
+        <h2>新增用户信息</h2>
+        <form @submit.prevent="addUser">
+          <div>
+            <label for="add_user_name" >用户名:</label>
+            <input type="text" v-model="newUser.user_name" id="add_user_name" required />
+          </div>
+          <div>
+            <label for="add_user_name" >密码:</label>
+            <input type="text" v-model="newUser.user_name" id="add_user_password" required />
+          </div>
+          <div>
+            <label for="add_is_administrator">管理员:</label>
+            <input type="checkbox" v-model="newUser.is_administrator" id="add_is_administrator" />
+          </div>
+          <button type="submit">添加</button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -56,11 +81,17 @@ export default {
     return {
       users: [],
       page: 1,
-      pageSize: 6,
+      pageSize: 10,
       totalPages: 1,
       showEditModal: false,
+      showAddModal: false,
       currentUser: {
         user_name: '',
+        is_administrator: false
+      },
+      newUser: {
+        user_name: '',
+        password: '',
         is_administrator: false
       }
     };
@@ -82,6 +113,7 @@ export default {
     },
     changePage(newPage) {
       if (newPage > 0 && newPage <= this.totalPages) {
+        console.log('Changing to page:', newPage); // 调试信息
         this.page = newPage;
         this.fetchUsers(this.page, this.pageSize);
       }
@@ -112,6 +144,30 @@ export default {
       } catch (error) {
         console.error('Error deleting user:', error);
       }
+    },
+    closeAddModal() {
+      this.showAddModal = false;
+      this.clearNewUserForm();
+    },
+    async addUser() {
+      try {
+        // Convert dates to ISO 8601 format
+        await axios.post(`http://localhost:8081/admin/register`, this.newUser);
+        
+        this.fetchUsers(this.page, this.pageSize);
+        this.showAddModal = false;
+        this.clearNewUserForm();
+      } catch (error) {
+        console.error('Error adding borrower:', error);
+      }
+    },
+    clearNewUserForm() {
+      this.newUser = {
+        borrower_id: '',
+        book_id: '',
+        borrowed_date: '',
+        fine_amount: 0
+      };
     }
   },
   created() {
@@ -124,20 +180,52 @@ export default {
 <style>
 .user-management {
   padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+}
+
+.user-management h2 {
+  color: #333;
+  margin-bottom: 20px;
 }
 
 .user-management table {
   width: 100%;
   border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .user-management th, .user-management td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
+  text-align: left;
 }
 
 .user-management th {
   background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
+}
+
+.user-management td {
+  background-color: #fff;
+}
+
+.user-management button {
+  padding: 10px 15px;
+  margin: 5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.user-management button:hover {
+  background-color: #0056b3;
 }
 
 .pagination {
@@ -146,14 +234,28 @@ export default {
 }
 
 .pagination button {
-  padding: 5px 10px;
-  margin: 0 5px;
-}
-
-button {
-  padding: 5px 10px;
+  padding: 8px 12px;
   margin: 0 5px;
   cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:enabled {
+  background-color: #0056b3;
+}
+
+.pagination span {
+  font-size: 16px;
+  color: #333;
 }
 
 .modal {
@@ -167,13 +269,13 @@ button {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
   background-color: #fff;
   padding: 20px;
-  border: 1px solid #888;
+  border-radius: 8px;
   width: 400px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -198,4 +300,43 @@ button {
   text-decoration: none;
   cursor: pointer;
 }
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal form div {
+  margin-bottom: 15px;
+}
+
+.modal form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.modal form input[type="text"],
+.modal form input[type="checkbox"] {
+  width: calc(100% - 22px);
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal form button {
+  align-self: flex-end;
+  padding: 10px 15px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.modal form button:hover {
+  background-color: #0056b3;
+}
+
 </style>

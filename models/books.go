@@ -65,11 +65,11 @@ func (u *BookType) Insert(employee *BookType) *gorm.DB {
 }
 
 func (u *BookType) Update(employee *BookType) *gorm.DB {
-	return utils.DB_MySQL.Model(&BookType{}).Where("id =?", employee.ID).Updates(&employee)
+	return utils.DB_MySQL.Model(&BookType{}).Where("id = ?", employee.ID).Updates(&employee)
 }
 
 func (u *BookType) Delete(user_name string) *gorm.DB {
-	return utils.DB_MySQL.Model(&BookType{}).Where("user_id =?", user_name).Delete(&BookType{})
+	return utils.DB_MySQL.Model(&BookType{}).Where("user_id = ?", user_name).Delete(&BookType{})
 }
 
 func (u *BookType) GetAll() ([]BookType, *gorm.DB){

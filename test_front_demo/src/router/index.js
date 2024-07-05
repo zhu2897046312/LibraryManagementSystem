@@ -6,8 +6,7 @@ import AdminManager from '../views/AdminManager.vue'
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    redirect: '/login'
   },
   {
     path: '/about',

@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard">
+  <div class="dashboard" @click="hideProfileMenu">
     <aside class="sidebar">
       <h1>工作台</h1>
       <nav>
@@ -7,21 +7,21 @@
           <li @click="currentView = 'BorrowerManagement'">借阅者管理</li>
           <li @click="currentView = 'BookManagement'">图书管理</li>
           <li @click="currentView = 'LoanManagement'">借阅管理</li>
-          <li @click="showOtherInfo = toggleOtherInfo" @mouseleave="hideOtherInfo">
+          <li @click.stop="currentView = 'UserManagement'">用户管理</li>
+          <!-- <li @click="showOtherInfo = toggleOtherInfo" @mouseleave="hideOtherInfo">
             其他信息管理
             <ul v-if="showOtherInfo">
               <li @click.stop="currentView = 'BorrowerCategoryManagement'">借阅者类别信息管理</li>
               <li @click.stop="currentView = 'BookCategoryManagement'">图书类别信息管理</li>
-              <li @click.stop="currentView = 'UserManagement'">用户管理</li>
             </ul>
-          </li>
+          </li> -->
         </ul>
       </nav>
     </aside>
     <main class="content">
       <header class="header">
-        <div class="profile" @mouseenter="showProfileMenu = true" @mouseleave="showProfileMenu = false">
-          <img src="../assets/logo.png" alt="User Avatar" class="avatar">
+        <div class="profile" @click.stop="toggleProfileMenu">
+          <img src="../assets/libary_logo.jpg" alt="User Avatar" class="avatar">
           <ul v-if="showProfileMenu" class="profile-menu">
             <li @click="currentView = 'UserProfile'">个人信息</li>
             <li @click="logout">退出登录</li>
@@ -39,36 +39,46 @@ import BorrowerManagement from '../components/Manager/BorrowerManagement.vue';
 import BookManagement from '../components/Manager/BookManagement.vue';
 import LoanManagement from '../components/Manager/LoanManagement.vue';
 import UserManagement from '../components/Manager/UserManagement.vue';
+
 export default {
-    name: 'Dashboard',
-    components: {
-        Login,
-        BorrowerManagement,
-        BookManagement,
-        LoanManagement,
-        UserManagement
+  name: 'Dashboard',
+  components: {
+    Login,
+    BorrowerManagement,
+    BookManagement,
+    LoanManagement,
+    UserManagement
+  },
+  data() {
+    return {
+      currentView: 'BorrowerManagement',
+      showOtherInfo: false,
+      showProfileMenu: false,
+    };
+  },
+  methods: {
+    toggleOtherInfo() {
+      this.showOtherInfo = !this.showOtherInfo;
     },
-    data() {
-        return {
-            currentView: 'Login',
-            showOtherInfo: false,
-            showProfileMenu: false,
-            users: [],  // Added to hold user data
-            page: 1,  // Current page number
-            pageSize: 10  // Number of items per page
-        };
+    hideOtherInfo() {
+      this.showOtherInfo = false;
     },
-    methods: {
-        toggleOtherInfo() {
-            this.showOtherInfo = !this.showOtherInfo;
-        },
-        hideOtherInfo() {
-            this.showOtherInfo = false;
-        },
+    toggleProfileMenu() {
+      this.showProfileMenu = !this.showProfileMenu;
+    },
+    hideProfileMenu() {
+      this.showProfileMenu = false;
+    },
+    logout() {
+      // Clear user data (if any)
+      // Perform any necessary cleanup actions
+
+      // Redirect to login page
+      this.$router.push({ path: '/login' })
     }
+  }
 };
 </script>
-
 
 <style>
 .dashboard {
